@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WebAR 圖片掃描播放影片</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+
+    <!-- A-Frame -->
+    <script src="https://unpkg.com/aframe@1.4.0/dist/aframe.min.js"></script>
+    <!-- MindAR for A-Frame（圖片追蹤） -->
+    <script src="https://unpkg.com/mind-ar/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #000;
+      }
+
+      /* 預防影片原生標籤出現在畫面上 */
+      #ui-video {
+        position: fixed;
+        top: -9999px;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+      }
+
+      .loading-hint {
+        position: fixed;
+        left: 50%;
+        bottom: 16px;
+        transform: translateX(-50%);
+        color: #fff;
+        padding: 8px 16px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 999px;
+        font-size: 14px;
+        z-index: 10;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- 可以放一個提示文字 -->
+    <div class="loading-hint">
+      請允許相機權限，並把相機對準指定圖片（marker）
+    </div>
+
+    <!-- HTML5 影片（當作資源用） -->
+    <!-- 注意：一定要 playsinline，手機才不會全螢幕 -->
+    <video
+      id="ui-video"
+      src="./assets/video.mp4"
+      preload="auto"
+      loop
+      muted
+      playsinline
+      webkit-playsinline
+      crossorigin="anonymous"
+    ></video>
+
+    <!-- A-Frame + MindAR 場景 -->
+    <a-scene
+      mindar-image="imageTargetSrc: ./assets/targets.mind; autoStart: true;"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: true"
+      embedded
+    >
+      <!-- 資源管理 -->
+      <a-assets>
+        <!-- 這裡再宣告一次 AR 用的影片貼圖 -->
+        <video
+          id="ar-video"
+          src="./assets/video.mp4"
+          preload="auto"
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+          crossorigin="anonymous"
+        ></video>
+      </a-assets>
+
+      <!-- 相機（MindAR 會接管位置） -->
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <!-- 當掃到 targetIndex: 0 這張圖片，就在上面貼一個影片平面 -->
+      <a-entity mindar-image-target="targetIndex: 0">
+        <!-- 寬高比例依照影片 16:9 調整（1 x 0.5625） -->
+        <a-plane
+          position="0 0 0"
+          rotation="0 0 0"
+          width="1"
+          height="0.5625"
+          material="src: #ar-video; transparent: false"
+        ></a-plane>
+      </a-entity>
+    </a-scene>
+
+    <script>
+      // 這段控制：掃到圖片時播放影片、失去時暫停
+      window.addEventListener("DOMContentLoaded", () => {
+        const sceneEl = document.querySelector("a-scene");
+        const target = document.querySelector("[mindar-image-target]");
+        const arVideo = document.querySelector("#ar-video");
+
+        // 有些手機需要互動後才能播放影片，你可以加一個點擊啟動
+        document.body.addEventListener(
+          "click",
+          () => {
+            if (arVideo.paused) arVideo.play().catch(() => {});
+          },
+          { once: true }
+        );
+
+        target.addEventListener("targetFound", () => {
+          console.log("Target found");
+          arVideo.play().catch((e) => {
+            console.warn("Autoplay failed, waiting user interaction", e);
+          });
+        });
+
+        target.addEventListener("targetLost", () => {
+          console.log("Target lost");
+          arVideo.pause();
+        });
+      });
+    </script>
+  </body>
+</html>
