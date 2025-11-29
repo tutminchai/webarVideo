@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
     
     <style>
-      /* 啟動畫面的樣式：確保用戶點擊後才播放聲音 */
       #start-screen {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -32,9 +31,6 @@
         margin-top: 20px;
         font-weight: bold;
       }
-      #start-btn:active {
-        background: #0056b3;
-      }
     </style>
   </head>
   <body>
@@ -45,27 +41,25 @@
       <button id="start-btn">開始體驗</button>
     </div>
 
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; filterMinCF:0.0001; filterBeta: 0.001;" 
+    <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind; filterMinCF:0.0001; filterBeta: 0.001;" 
              color-space="sRGB" 
              renderer="colorManagement: true, physicallyCorrectLights" 
              vr-mode-ui="enabled: false" 
              device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <video id="ar-video" src="./video.mp4" preload="auto" loop="true" playsinline webkit-playsinline crossorigin="anonymous"></video>
+        <video id="ar-video" src="./assets/video.mp4" preload="auto" loop="true" playsinline webkit-playsinline crossorigin="anonymous"></video>
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        
         <a-video src="#ar-video" 
                  position="0 0 0" 
                  width="1" 
                  height="0.5625" 
                  rotation="0 0 0">
         </a-video>
-        
       </a-entity>
     </a-scene>
 
@@ -75,23 +69,18 @@
       const video = document.querySelector('#ar-video');
       const arEntity = document.querySelector('[mindar-image-target]');
 
-      // 用戶點擊「開始」後
       startBtn.addEventListener('click', () => {
-        // 隱藏遮罩
         startScreen.style.display = 'none';
-        // 快速播放並暫停，解鎖 iOS 的聲音播放限制
         video.play();
         video.pause();
         video.currentTime = 0;
       });
 
-      // 偵測到圖片：播放影片
       arEntity.addEventListener("targetFound", event => {
         console.log("Image Target Found");
         video.play();
       });
 
-      // 圖片消失：暫停影片
       arEntity.addEventListener("targetLost", event => {
         console.log("Image Target Lost");
         video.pause();
