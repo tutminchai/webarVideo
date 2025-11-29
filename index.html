@@ -2,89 +2,25 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>WebAR Video Player</title>
+    <title>測試模式</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    
-    <style>
-      #start-screen {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 999;
-        color: white;
-        flex-direction: column;
-        font-family: sans-serif;
-        text-align: center;
-      }
-      #start-btn {
-        padding: 12px 24px;
-        font-size: 18px;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        margin-top: 20px;
-        font-weight: bold;
-      }
-    </style>
+    <style>body{margin:0; overflow:hidden;} h1{position:absolute; top:10px; left:10px; color:red; z-index:999; background:white; padding:5px;}</style>
   </head>
   <body>
-
-    <div id="start-screen">
-      <h1>AR 互動體驗</h1>
-      <p>請允許相機權限<br>並點擊下方按鈕開始</p>
-      <button id="start-btn">開始體驗</button>
-    </div>
-
-    <a-scene mindar-image="imageTargetSrc: ./assets/targets.mind; filterMinCF:0.0001; filterBeta: 0.001;" 
-             color-space="sRGB" 
-             renderer="colorManagement: true, physicallyCorrectLights" 
-             vr-mode-ui="enabled: false" 
-             device-orientation-permission-ui="enabled: false">
+    <h1>測試模式：請掃描下方的範例卡片</h1>
+    
+    <a-scene mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/examples/image-tracking/assets/card-example/card.mind;" 
+             color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
       <a-assets>
-        <video id="ar-video" src="./assets/video.mp4" preload="auto" loop="true" playsinline webkit-playsinline crossorigin="anonymous"></video>
-      </a-assets>
+        </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-video src="#ar-video" 
-                 position="0 0 0" 
-                 width="1" 
-                 height="0.5625" 
-                 rotation="0 0 0">
-        </a-video>
+        <a-plane color="blue" opacity="0.5" position="0 0 0" height="0.552" width="1" rotation="0 0 0"></a-plane>
       </a-entity>
     </a-scene>
-
-    <script>
-      const startBtn = document.querySelector('#start-btn');
-      const startScreen = document.querySelector('#start-screen');
-      const video = document.querySelector('#ar-video');
-      const arEntity = document.querySelector('[mindar-image-target]');
-
-      startBtn.addEventListener('click', () => {
-        startScreen.style.display = 'none';
-        video.play();
-        video.pause();
-        video.currentTime = 0;
-      });
-
-      arEntity.addEventListener("targetFound", event => {
-        console.log("Image Target Found");
-        video.play();
-      });
-
-      arEntity.addEventListener("targetLost", event => {
-        console.log("Image Target Lost");
-        video.pause();
-      });
-    </script>
   </body>
 </html>
